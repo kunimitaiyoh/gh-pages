@@ -1,6 +1,7 @@
 var helper = require('../helper');
 var ghPages = require('../../lib/');
 var path = require('path');
+var Git = require('../../lib/git');
 
 var fixtures = path.join(__dirname, 'fixtures');
 var fixtureName = 'basic';
@@ -58,6 +59,38 @@ describe('basic usage', function() {
           .assertContentsMatch(local, url, branch)
           .then(function() {
             done();
+          })
+          .catch(done);
+      });
+    });
+  });
+
+  it('pushes with local user name if the flag is true', function(done) {
+    var local = path.join(fixtures, fixtureName, 'local');
+    var branch = 'gh-pages';
+    var setupOptions = {
+      branch: branch,
+    };
+
+    var name = 'Local User'
+    var email = 'localuser@example.com';
+    var author = name + ' <' + email + '>';
+    helper.setupRemote(fixtureName, setupOptions).then(function(url) {
+      var options = {
+        repo: url,
+        branch: branch,
+        localUser: true,
+      };
+      ghPages.publish(local, options, function(err) {
+        if (err) {
+          return done(err)
+        }
+
+        helper
+          .assertContentsMatch(local, url, branch)
+          .assertLastCommitAuthor(url, author)
+          .then(function() {
+            done()
           })
           .catch(done);
       });

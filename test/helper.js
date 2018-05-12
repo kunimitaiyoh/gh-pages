@@ -110,5 +110,27 @@ function assertContentsMatch(dir, url, branch) {
     });
 }
 
+function assertLastCommitAuthor(dir, expected) {
+  return new Git(dir)
+    .exec('show', '--no-patch', "--format=%an <%ae>", 'HEAD')
+    .then(function(git) {
+      if (git.output == expected) {
+        return true;
+      } else {
+        throw new Error("Excpected '" + expected + "', but '" + git.output + "'");
+      }
+    });
+}
+
+function configureLocalName(dir, name, email) {
+  return Promise.resolve(new Git(dir)).then(function(git) {
+    return git.exec('config', 'user.name', name);
+  }).then(function(git) {
+    return git.exec('config', 'user.email', email);
+  });
+}
+
 exports.setupRemote = setupRemote;
 exports.assertContentsMatch = assertContentsMatch;
+exports.configureLocalName = configureLocalName;
+exports.assertLastCommitAuthor = assertLastCommitAuthor;
