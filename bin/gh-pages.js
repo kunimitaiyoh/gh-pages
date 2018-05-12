@@ -39,6 +39,14 @@ function main(args) {
       '.'
     )
     .option('-n, --no-push', 'Commit only (with no push)')
+    .option(
+      '-l, --local-user',
+      'Use Git local user config instead of global one'
+    )
+    .option(
+      '-A, --author <author>',
+      'Override default author, must be RFC 5322 format'
+    )
     .parse(args);
 
   ghpages.publish(
@@ -55,7 +63,9 @@ function main(args) {
       add: !!program.add,
       only: program.remove,
       remote: program.remote,
-      push: !!program.push
+      push: !!program.push,
+      localUser: !!program.localUser,
+      author: program.author
     },
     function(err) {
       if (err) {

@@ -11,6 +11,21 @@ describe('gh-pages', function() {
     ghpages.publish.restore();
   });
 
+  var splitArgs = (function() {
+    var pattern = /(?:"([^"]+)"|([^ ]+))/g;
+
+    return function(args) {
+      pattern.lastIndex = 0;
+      var output = [];
+      var matched = pattern.exec(args);
+      while (matched) {
+        output.push(matched[1] !== undefined ? matched[1] : matched[2]);
+        matched = pattern.exec(args);
+      }
+      return output;
+    };
+  })();
+
   var defaults = {
     repo: undefined,
     silent: false,
@@ -21,7 +36,9 @@ describe('gh-pages', function() {
     dotfiles: false,
     add: false,
     remote: 'origin',
-    push: true
+    push: true,
+    localUser: false,
+    author: undefined
   };
 
   var scenarions = [
@@ -30,11 +47,17 @@ describe('gh-pages', function() {
     ['--dist lib -x', 'lib', {silent: true}],
     ['--dist lib --dotfiles', 'lib', {dotfiles: true}],
     ['--dist lib --dest target', 'lib', {dest: 'target'}],
-    ['--dist lib -a', 'lib', {add: true}]
+    ['--dist lib -a', 'lib', {add: true}],
+    ['--dist lib --local-user', 'lib', {localUser: true}],
+    [
+      '--dist lib -A "Jane Doe <janedoe@example.com>"',
+      'lib',
+      {author: 'Jane Doe <janedoe@example.com>'}
+    ]
   ];
 
   scenarions.forEach(function(scenario) {
-    var args = scenario[0].split(' ');
+    var args = splitArgs(scenario[0]);
     var dist = scenario[1];
     var config = scenario[2];
 
